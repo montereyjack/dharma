@@ -236,6 +236,8 @@ class DharmaMachine:  # pylint: disable=too-many-instance-attributes
             %choice%\(\s*(?P<choices>.+?)\s*\)
         )"""
 
+        self.DG_FILE_EXTENSION = "*.dg"
+
     def process_settings(self, settings):
         """A lazy way of feeding Dharma with configuration settings."""
         logging.debug("Using configuration from: %s", settings.name)
@@ -512,6 +514,23 @@ class DharmaMachine:  # pylint: disable=too-many-instance-attributes
                 sys.exit(-1)
 
     def process_grammars(self, grammars):
+        grammarlist = []
+        for grammar in grammars:
+            if os.path.isfile(grammar):
+                grammarlist.append(open(grammar))
+            elif os.path.isdir(grammar):
+                curdir = os.getcwd()
+                path = os.path.abspath(grammar)
+                os.chdir(path)
+                files = glob.glob(self.DG_FILE_EXTENSION)
+                for g in files:
+                    grammarlist.append(open(os.path.abspath(os.path.join(path, g))))
+
+                os.path.chdir(curdir)
+            else:
+                log.error("Unknown file type found")
+                sys.exit(-1)
+
         """Process provided grammars by parsing them into Python objects."""
         for path in self.default_grammars:
             grammars.insert(0, open(os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -524,3 +543,6 @@ class DharmaMachine:  # pylint: disable=too-many-instance-attributes
             self.handle_empty_line()
         self.resolve_xref()
         self.calculate_leaf_paths()
+
+
+

@@ -26,7 +26,7 @@ class DharmaCommandLine:
         )
 
         m = parser.add_argument_group('mandatory arguments')
-        m.add_argument('-grammars', metavar='file', type=argparse.FileType(), nargs='+', required=True,
+        m.add_argument('-grammars', metavar='file', type=str, nargs='+', required=True,
                        help='input grammars')
 
         o = parser.add_argument_group('optional arguments')
